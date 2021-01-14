@@ -11,7 +11,7 @@
   - Javascript
   - D3
   - HTML
-  - CSS ?????
+ 
 
 - ## File overview
   - ### samples.json
@@ -26,11 +26,34 @@
 
 
 - ## Steps deployed to reach goal
-    - Step 1
-    - Step 2
-    - Step 3
+    - Step 1 : Populate the dropdown selector with the test subject's ids using d3 data binding
+    - Step 2 : Create functions for each graph and info panel
+      - Bar Graph:
+          - ##### *original data set*
+      - Gauge Graph:
+        ##### *original data set*
+      - Bubble Chart:
+      - Demographics Panel:
+    - Step 3: Open json on page load and run the graph and info panel functions using the initial drop down value
+    - Step 4: Create the "dropdown_change" function that updates data for the graph based on the new value in the dropdown selector using Plotly.restyle and Plotly.relayout
+    - Step 5: Create event handler that runs the "dropdown_change" function when the drop down selection changes
+
+
+
+- ## How to use the program
+  - Since the page is deployed on my github account, simply navigate to https://travisb98.github.io/BellyButton/ 
+  - If you're deploying the program on your local machine, you will need to deploy a python server using this command: 
+  
+  ```python
+  python -m http.server
+  ```
 
 - ## Findings and Conclusion
     - note 1
     - note 2
     - note 3
+
+
+
+
+

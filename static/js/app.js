@@ -19,8 +19,8 @@ function dropdown_change(){
 
 
         ////// restyle and layout of the bubble chart
-        Plotly.restyle(bubbleChart(d)[0],bubbleChart(d)[3]);
-        Plotly.relayout(bubbleChart(d)[0],bubbleChart(d)[2]);
+        Plotly.restyle(bubble_graph(d)[0],bubble_graph(d)[3]);
+        Plotly.relayout(bubble_graph(d)[0],bubble_graph(d)[2]);
 
 
         // removes the old demographic data
@@ -28,7 +28,7 @@ function dropdown_change(){
         
         /// populates the demographic data in the pane
         demographics(d);
-
+        // updates the gauge graph
         gauge_graph(d);
     
 
@@ -40,61 +40,26 @@ function dropdown_change(){
 
 
 
-////// this is the refined version of the main start up function
+////// runs on start up
+///// open the json file
 d3.json("samples.json").then(function(d){
 
     // Populates the dropdown menu
     populate_dropdown(d);
 
     // creates a initial plot from the bar_graph function
-    Plotly.newPlot(bar_graph(d)[0],bar_graph(d)[1],bar_graph(d)[2],{responsive: true});
+    Plotly.newPlot(bar_graph(d)[0],bar_graph(d)[1],bar_graph(d)[2],{responsive: true}); /// i think i might be able to extract the variables from the graph function more cleanly
 
     // creates the initial buble plot using the bubblchart function
-    Plotly.newPlot(bubbleChart(d)[0],bubbleChart(d)[1],bubbleChart(d)[2]);
+    Plotly.newPlot(bubble_graph(d)[0],bubble_graph(d)[1],bubble_graph(d)[2]);
 
     /// populates the demographic data in the pane
     demographics(d);
 
-    
+    // create the guage graph using the guage function
     gauge_graph(d);
     
 });
-
-
-function gauge_graph(d){
-
-    ///// define currention option selected by the test subject dropdown
-    var cur_val = dropdown.property("value");
-
-    var cur_wf=d.metadata.find(element => element.id == cur_val).wfreq;
-
-    /// finds the maximum wash frequency
-    var max_wf = d3.max(d.metadata.map(element => element.wfreq));
-
-    // d3.select("gauge")
-
-    // console.log(d3.select("gauge"));
-
-    var data = [
-        {
-            domain: { x: [0, 1], y: [0, 1] },
-            value: cur_wf,
-            title: { text: "Speed" },
-            title:"Daily Belly Button Baths",
-            type: "indicator",
-            mode: "gauge+number",
-            gauge: { axis: { range: [null, max_wf] } }
-
-
-            
-        }
-    ];
-    
-    var layout = { width: 1000, height: 500, margin: { t: 0, b: 0 } };
-    Plotly.newPlot('gauge', data, layout);
-
-};
-
 
 
 
@@ -109,20 +74,25 @@ function populate_dropdown(d){
 };
 
 
+
+
+
 function bar_graph(d){
 
-    //// getting the data for the bar graph and
     ///// define currention option selected by the test subject dropdown
     var cur_val = dropdown.property("value");
     // defines the sample for the selected id
     var cur_sample = d.samples.find(element=> element.id == cur_val);
 
+    ///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ///////// these sorts dont make sense i need to sort the entire d.samples, then grab each list below. The way I have it set up now does not sort each list the same way, shuffling the data
+    ///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     /// sorts and reduces the values for the graph
     var x_val = cur_sample.otu_ids.sort((a,b) => (b-a)).slice(0,10);
 
     //  sorts and reduces the list of labels. It also adds the OTU prefix
     var y_val=cur_sample.sample_values.sort((a,b) => (b-a)).slice(0,10).map(x => `OTU ${x}`);
-
+    // sorts and reduces the labels
     var labels=cur_sample.otu_labels.sort((a,b) => (b-a)).slice(0,10);
 
 
@@ -156,7 +126,7 @@ function bar_graph(d){
 
 
 
-function bubbleChart(d){
+function bubble_graph(d){
 
      ///// define currention option selected by the test subject dropdown
     var cur_val = dropdown.property("value");
@@ -197,6 +167,34 @@ function bubbleChart(d){
  
 };
 
+
+function gauge_graph(d){
+
+    ///// define currention option selected by the test subject dropdown
+    var cur_val = dropdown.property("value");
+
+    var cur_wf=d.metadata.find(element => element.id == cur_val).wfreq;
+
+    /// finds the maximum wash frequency
+    var max_wf = d3.max(d.metadata.map(element => element.wfreq));
+
+    var data = [
+        {
+            domain: { x: [0, 1], y: [0, 1] },
+            value: cur_wf,
+            title: { text: "Speed" },
+            title:"Daily Belly Button Baths",
+            type: "indicator",
+            mode: "gauge+number",
+            gauge: { axis: { range: [null, max_wf] } }
+            
+        }
+    ];
+    
+    var layout = { width: 1000, height: 500, margin: { t: 0, b: 0 } };
+    Plotly.newPlot('gauge', data, layout);
+
+};
 
 function demographics(d){
     ///// define currention option selected by the test subject dropdown
