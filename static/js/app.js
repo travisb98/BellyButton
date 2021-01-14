@@ -18,7 +18,7 @@ function dropdown_change(){
         Plotly.relayout(bar_graph(d)[0],bar_graph(d)[2]);
 
 
-        //////
+        ////// restyle and layout of the bubble chart
         Plotly.restyle(bubbleChart(d)[0],bubbleChart(d)[3]);
         Plotly.relayout(bubbleChart(d)[0],bubbleChart(d)[2]);
 
@@ -35,17 +35,8 @@ function dropdown_change(){
     });
 
 
-    // // ///// updating the bar graph
-
-
-
-
-
-
-
 
 };
-
 
 
 
@@ -56,12 +47,10 @@ d3.json("samples.json").then(function(d){
     populate_dropdown(d);
 
     // creates a initial plot from the bar_graph function
-    Plotly.newPlot(bar_graph(d)[0],bar_graph(d)[1],bar_graph(d)[2]);
+    Plotly.newPlot(bar_graph(d)[0],bar_graph(d)[1],bar_graph(d)[2],{responsive: true});
 
     // creates the initial buble plot using the bubblchart function
     Plotly.newPlot(bubbleChart(d)[0],bubbleChart(d)[1],bubbleChart(d)[2]);
-
-
 
     /// populates the demographic data in the pane
     demographics(d);
@@ -69,7 +58,6 @@ d3.json("samples.json").then(function(d){
     
     gauge_graph(d);
     
-
 });
 
 
@@ -83,9 +71,6 @@ function gauge_graph(d){
     /// finds the maximum wash frequency
     var max_wf = d3.max(d.metadata.map(element => element.wfreq));
 
-
-
-
     // d3.select("gauge")
 
     // console.log(d3.select("gauge"));
@@ -94,7 +79,8 @@ function gauge_graph(d){
         {
             domain: { x: [0, 1], y: [0, 1] },
             value: cur_wf,
-            title: { text: "Wash frequency" },
+            title: { text: "Speed" },
+            title:"Daily Belly Button Baths",
             type: "indicator",
             mode: "gauge+number",
             gauge: { axis: { range: [null, max_wf] } }
@@ -104,16 +90,10 @@ function gauge_graph(d){
         }
     ];
     
-    var layout = { width: 1200, height: 500, margin: { t: 0, b: 0 } };
+    var layout = { width: 1000, height: 500, margin: { t: 0, b: 0 } };
     Plotly.newPlot('gauge', data, layout);
 
 };
-
-
-
-
-
-
 
 
 
@@ -138,15 +118,22 @@ function bar_graph(d){
     var cur_sample = d.samples.find(element=> element.id == cur_val);
 
     /// sorts and reduces the values for the graph
-    var x_val = cur_sample.otu_ids.sort((a,b) => (b-a)).slice(0,10)
-   
-    var y_val=cur_sample.sample_values.sort((a,b) => (b-a)).slice(0,10)
+    var x_val = cur_sample.otu_ids.sort((a,b) => (b-a)).slice(0,10);
 
+    //  sorts and reduces the list of labels. It also adds the OTU prefix
+    var y_val=cur_sample.sample_values.sort((a,b) => (b-a)).slice(0,10).map(x => `OTU ${x}`);
+
+    var labels=cur_sample.otu_labels.sort((a,b) => (b-a)).slice(0,10);
+
+
+    /// data for the bar graph
     var data = {
         x:x_val,
         y:y_val,
         type:"bar",
-        orientation:'h'
+        orientation:'h',
+        text:labels,
+        
     };
     /// used for updating the plot on a change
     var dataupdate ={
@@ -157,10 +144,10 @@ function bar_graph(d){
     var trace = [data];
 
     var layout1 = {
-        title: `results for ${cur_val}`
+        title: `Top Ten Samples for Test Subject ${cur_val}`
         };
 
-    // Plotly.newPlot("bar", tracedata1, layout1);
+
 
     return ["bar", trace, layout1, dataupdate];
     //////////////////////////////////////////////////////////////////
@@ -196,7 +183,7 @@ function bubbleChart(d){
     var trace = [data];
 
     var layout = {
-        title: `Bubble Chart for ${cur_val}`,
+        title: `Samples for Test Subject ${cur_val}`,
         showlegend: false,
         height: 600,
         width: 1200
