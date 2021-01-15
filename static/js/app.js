@@ -13,15 +13,19 @@ function dropdown_change(){
 
     d3.json("samples.json").then(function(d){
 
-        ///// restyling and relayout the bar graph using the bar graph function
-        Plotly.restyle(bar_graph(d)[0],bar_graph(d)[3]);
-        Plotly.relayout(bar_graph(d)[0],bar_graph(d)[2]);
+        ///// extract variables from bar graph function
+        var [bar_type, bar_trace, bar_layout, bar_dataupdate] = bar_graph(d);
+        
+        ///// restyling and relayout the bar graph using variables from the bar graph function
+        Plotly.restyle(bar_type,bar_dataupdate);
+        Plotly.relayout(bar_type,bar_layout);
 
+        //// extract variables from bubble  graph functions
+        var [bubble_type,bubble_trace, bubble_layout, bubble_dataupdate] = bubble_graph(d);
 
-        ////// restyle and layout of the bubble chart
-        Plotly.restyle(bubble_graph(d)[0],bubble_graph(d)[3]);
-        Plotly.relayout(bubble_graph(d)[0],bubble_graph(d)[2]);
-
+        /// use variables from bubble graph functions to restyle and relayout bubble chart
+        Plotly.restyle(bubble_type,bubble_dataupdate);
+        Plotly.relayout(bubble_type,bubble_layout);
 
         // removes the old demographic data
         d3.select("#sample-metadata").selectAll("*").remove();
@@ -30,11 +34,8 @@ function dropdown_change(){
         demographics(d);
         // updates the gauge graph
         gauge_graph(d);
-    
 
     });
-
-
 
 };
 
@@ -47,11 +48,20 @@ d3.json("samples.json").then(function(d){
     // Populates the dropdown menu
     populate_dropdown(d);
 
-    // creates a initial plot from the bar_graph function
-    Plotly.newPlot(bar_graph(d)[0],bar_graph(d)[1],bar_graph(d)[2],{responsive: true}); /// i think i might be able to extract the variables from the graph function more cleanly
+    ///// extract variables from bar graph function
+    var [bar_type, bar_trace, bar_layout, bar_dataupdate] = bar_graph(d);
+
+    // creates a initial plot from the bar_graph function's variables
+    Plotly.newPlot(bar_type,bar_trace,bar_layout,{responsive: true}); /// i think i might be able to extract the variables from the graph function more cleanly
+
+    //// extract variables from bubble  graph functions's variables
+    var [bubble_type,bubble_trace, bubble_layout, bubble_dataupdate] = bubble_graph(d);
 
     // creates the initial buble plot using the bubblchart function
-    Plotly.newPlot(bubble_graph(d)[0],bubble_graph(d)[1],bubble_graph(d)[2]);
+    Plotly.newPlot(bubble_type,bubble_trace,bubble_layout,{responsive: true});
+
+
+
 
     /// populates the demographic data in the pane
     demographics(d);
@@ -84,16 +94,13 @@ function bar_graph(d){
     // defines the sample for the selected id
     var cur_sample = d.samples.find(element=> element.id == cur_val);
 
-    ///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ///////// these sorts dont make sense i need to sort the entire d.samples, then grab each list below. The way I have it set up now does not sort each list the same way, shuffling the data
-    ///////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    /// sorts and reduces the values for the graph
-    var x_val = cur_sample.otu_ids.sort((a,b) => (b-a)).slice(0,10);
+    var y_val=cur_sample.otu_ids.slice(0,10).map(x => `OTU ${x}`);
 
-    //  sorts and reduces the list of labels. It also adds the OTU prefix
-    var y_val=cur_sample.sample_values.sort((a,b) => (b-a)).slice(0,10).map(x => `OTU ${x}`);
-    // sorts and reduces the labels
-    var labels=cur_sample.otu_labels.sort((a,b) => (b-a)).slice(0,10);
+    /// reduces to top ten sample values
+    var x_val = cur_sample.sample_values.slice(0,10);
+
+    // reduces to top ten labels
+    var labels=cur_sample.otu_labels.slice(0,10);
 
 
     /// data for the bar graph
@@ -173,6 +180,7 @@ function gauge_graph(d){
     ///// define currention option selected by the test subject dropdown
     var cur_val = dropdown.property("value");
 
+    // gets the washing frequency variable for the current id
     var cur_wf=d.metadata.find(element => element.id == cur_val).wfreq;
 
     /// finds the maximum wash frequency
