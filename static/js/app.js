@@ -8,14 +8,13 @@ var dropdown = d3.select("#selDataset");
 
 function dropdown_change(){
     console.log("dropdown changed");
+
     //// opens the json file
-
-
     d3.json("samples.json").then(function(d){
 
         ///// extract variables from bar graph function
         var [bar_type, bar_trace, bar_layout, bar_dataupdate] = bar_graph(d);
-        
+
         ///// restyling and relayout the bar graph using variables from the bar graph function
         Plotly.restyle(bar_type,bar_dataupdate);
         Plotly.relayout(bar_type,bar_layout);
@@ -59,9 +58,6 @@ d3.json("samples.json").then(function(d){
 
     // creates the initial buble plot using the bubblchart function
     Plotly.newPlot(bubble_type,bubble_trace,bubble_layout,{responsive: true});
-
-
-
 
     /// populates the demographic data in the pane
     demographics(d);
