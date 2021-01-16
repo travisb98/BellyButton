@@ -119,7 +119,7 @@
 
  - ## Preview
 
- ![preview](page_snip.jpg)
+ ![preview](page_snip.JPG)
 
 
 
